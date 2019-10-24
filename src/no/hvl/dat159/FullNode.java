@@ -23,36 +23,54 @@ public class FullNode {
 	 * adding a genesis block.
 	 */
 	public FullNode(String walletId) {
-		//TODO
+		blockchain = new Blockchain();
+		utxoMap = new UtxoMap();
+		wallet = new Wallet(walletId, this);
 	}
 
 	/**
 	 * Does what it says.
+	 * 1. Create the coinbase transaction
+	 * 2. Add the two transactions to a new block and mine the block
+	 * 3. Validate the block. If valid:
+	 *		4. Add the block to the blockchain
+	 *		5. Update the utxo set
+	 * else
+	 *		up to you
 	 */
 	public void mineAndAddGenesisBlock() {
-		//TODO
-		//1. Create the coinbase transaction
-		//2. Add the coinbase transaction to a new block and mine the block
-		//3. Validate the block. If valid:
-			//4. Add the block to the blockchain
-			//5. Update the utxo set
-		//else
-			//up to you
+		CoinbaseTx ct = new CoinbaseTx(blockchain.getHeight(), "Money for myself", wallet.getAddress());
+		Block newBlock = new Block(null, ct, null);
+		newBlock.mine();
+		if(newBlock.isValidAsGenesisBlock()) {
+			blockchain.appendBlock(newBlock);
+			utxoMap.addOutput(null, ct.getOutput());
+		}
+		else
+			System.out.println("Genesis block is not valid");
 	}
 	
 	/**
 	 * Does what it says.
+	 * 1. Create the coinbase transaction
+	 * 2. Add the two transactions to a new block and mine the block
+	 * 3. Validate the block. If valid:
+	 *		4. Add the block to the blockchain
+	 *		5. Update the utxo set with the new coinbaseTx
+	 *		6. Update the utxo set with the new tx
+	 * else
+	 *		up to you
 	 */
 	public void mineAndAppendBlockContaining(Transaction tx) {
-		//TODO
-		//1. Create the coinbase transaction
-		//2. Add the two transactions to a new block and mine the block
-		//3. Validate the block. If valid:
-			//4. Add the block to the blockchain
-			//5. Update the utxo set with the new coinbaseTx
-			//6. Update the utxo set with the new tx
-		//else
-			//up to you
+	
+		CoinbaseTx ct = new CoinbaseTx(blockchain.getHeight(), "Money for myself", wallet.getAddress());
+		Block newBlock = new Block(blockchain.getLastBlockHash(), ct, tx);
+		newBlock.mine();
+		if(newBlock.isValid()) {
+			blockchain.appendBlock(newBlock);
+			utxoMap.addOutput(null, ct.getOutput());
+			utxoMap.addOutput(tx.getInputs(), tx.getOutputs());
+		}
 	}
 
 	public Blockchain getBlockchain() {

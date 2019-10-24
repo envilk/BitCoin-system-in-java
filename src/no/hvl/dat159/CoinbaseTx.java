@@ -37,8 +37,8 @@ public class CoinbaseTx {
 	}
 	
 	public boolean isValid(UtxoMap utxoMap) {
-		//TODO
-		return true;
+		//TODO What to do with the utxoMap
+		return (message != null);
 	}
 
 	public String getMessage() {

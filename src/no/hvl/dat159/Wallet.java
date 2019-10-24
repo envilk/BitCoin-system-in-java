@@ -3,6 +3,8 @@ package no.hvl.dat159;
 import java.security.KeyPair;
 import java.security.PublicKey;
 
+import no.hvl.dat159.util.HashUtil;
+
 /**
  * A Wallet keeps the keys and creates signed transactions to be
  * sent to the "network"/node.
@@ -22,7 +24,9 @@ public class Wallet {
 	 * 
 	 */
 	public Wallet(String id, FullNode node) {
-		//TODO
+		this.id = id;
+		this.networkNode = node;
+		
 	}
 	
 	/**
@@ -50,16 +54,14 @@ public class Wallet {
      * 
      */
 	public PublicKey getPublicKey() {
-		//TODO
-		return null;
+		return keyPair.getPublic();
     }
 
 	/**
 	 * 
 	 */
     public String getAddress() {
-		//TODO
-		return null;
+		return HashUtil.pubKeyToAddress(getPublicKey());
     }
     
     /**
@@ -74,8 +76,7 @@ public class Wallet {
      * 
      */
     public int getNumberOfUtxos() {
-    	//TODO
-    	return 0;
+    	return networkNode.getUtxoMap().getAllUtxos().size();
     }
     
 	public void printOverview() {

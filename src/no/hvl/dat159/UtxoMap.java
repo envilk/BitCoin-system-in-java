@@ -1,9 +1,11 @@
 package no.hvl.dat159;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * A Map of UTXOs.
@@ -15,32 +17,36 @@ import java.util.Set;
  * It is organized as a Map to simplify lookup.
  */
 public class UtxoMap {
-	
+
 	/*
 	 * 
 	 */
 	private Map<Input, Output> utxos = new HashMap<>();
-	
+
 	/**
 	 * Collects all UTXOs and returns these as a Set of K,V-pairs.
 	 */
 	public Set<Entry<Input, Output>> getAllUtxos() {
 		return utxos.entrySet();
 	}
-	
+
 	/**
 	 * Collects UTXOs matching to a specific address and returns these
 	 * as a Set of K,V-pairs.
 	 */
 	public Set<Entry<Input, Output>> getUtxosForAddress(String address) {
-		//TODO
-		return null;
+		Set<Entry<Input, Output>> setAddress = new TreeSet<Entry<Input, Output>>();
+		for (Map.Entry<Input, Output> entry : utxos.entrySet()) {
+			if(entry.getValue().getAddress().equals(address))
+				setAddress.add(entry);
+		}
+		return setAddress;
 	}
-	
+
 	public void addOutput(Input input, Output output) {
 		utxos.put(input, output);
 	}
-	
+
 	public void removeOutput(Input input) {
 		utxos.remove(input);
 	}
