@@ -42,7 +42,7 @@ public class FullNode {
 		CoinbaseTx ct = new CoinbaseTx(blockchain.getHeight(), "Money for myself", wallet.getAddress());
 		Block newBlock = new Block(null, ct, null);
 		newBlock.mine();
-		if(newBlock.isValidAsGenesisBlock()) {
+		if(newBlock.isValidAsGenesisBlock() && ct.isValid(utxoMap)) {
 			blockchain.appendBlock(newBlock);
 			utxoMap.addOutput(null, ct.getOutput());
 		}
@@ -66,7 +66,7 @@ public class FullNode {
 		CoinbaseTx ct = new CoinbaseTx(blockchain.getHeight(), "Money for myself", wallet.getAddress());
 		Block newBlock = new Block(blockchain.getLastBlockHash(), ct, tx);
 		newBlock.mine();
-		if(newBlock.isValid()) {
+		if(newBlock.isValid() && tx.isValid(utxoMap) && ct.isValid(utxoMap)) {
 			blockchain.appendBlock(newBlock);
 			utxoMap.addOutput(null, ct.getOutput());
 			utxoMap.addOutput(tx.getInputs(), tx.getOutputs());

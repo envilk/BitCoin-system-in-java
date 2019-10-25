@@ -29,7 +29,7 @@ public class CoinbaseTx {
 	public CoinbaseTx(int blockHeight, String message, String walletAddress) {
 		this.blockHeight = blockHeight;
 		this.message = message;
-		this.output = new Output(0, walletAddress);
+		this.output = new Output(10, walletAddress);
 	}
 	
 	public boolean isValid(UtxoMap utxoMap) {
