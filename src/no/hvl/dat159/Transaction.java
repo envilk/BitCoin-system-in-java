@@ -1,11 +1,11 @@
 package no.hvl.dat159;
 
-import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.Signature;
+import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -14,6 +14,7 @@ import java.util.Map.Entry;
 
 import no.hvl.dat159.util.EncodingUtil;
 import no.hvl.dat159.util.HashUtil;
+import no.hvl.dat159.util.SignatureUtil;
 
 /**
  * 
@@ -37,20 +38,34 @@ public class Transaction {
 	}
 
 	/**
+	 * @throws SignatureException 
+	 * @throws NoSuchProviderException 
+	 * @throws NoSuchAlgorithmException 
+	 * @throws InvalidKeyException 
 	 * 
 	 */
-	public void signTxUsing(PrivateKey privateKey) {
-		Signature sign = Signature.getInstance("SHA256WithRSA", "SunRsaSign");
-		sign.initSign(privateKey);
-		byte[] dataBytes = message.getBytes();//TODO Summarize all the inputs and outputs in a message 
-		sign.update(dataBytes);
-		signature = sign.sign();
+	public void signTxUsing(PrivateKey privateKey) throws SignatureException, NoSuchAlgorithmException, NoSuchProviderException, InvalidKeyException {
+		String insOutsHash = new String();
+		for (Input input : inputs) {
+			insOutsHash += (input.getPrevTxId() + input.getPrevOutputIndex());
+		}
+		for (Output output : outputs) {
+			insOutsHash += (output.getAddress() + output.getValue());
+		}
+		signature = SignatureUtil.signWithDSA(privateKey, insOutsHash);
+		
+		
 	}
 
 	/**
+	 * @throws InvalidKeyException 
+	 * @throws NoSuchProviderException 
+	 * @throws NoSuchAlgorithmException 
+	 * @throws SignatureException 
 	 * 
 	 */
-	public boolean isValid(UtxoMap utxoMap) {
+	@SuppressWarnings("unlikely-arg-type")
+	public boolean isValid(UtxoMap utxoMap) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchProviderException, SignatureException {
 		//None of the data must be null 
 		if(inputs == null || outputs == null || signature == null || senderPublicKey == null)
 			return false;
@@ -66,48 +81,62 @@ public class Transaction {
 		}
 
 		//All inputs must exist in the UTXO-set
-		Set<Entry<Input, Output>> umap = utxoMap.getAllUtxos();
+		Set<Entry<Input, Output>> utxoSet = utxoMap.getAllUtxos();
 		for (Input input : inputs) {
-			if(!umap.contains(input))
+			if(!utxoSet.contains(input))
 				return false;
 		}
 
 		//All inputs must belong to the sender of this transaction
+		utxoSet = utxoMap.getUtxosForAddress(HashUtil.pubKeyToAddress(senderPublicKey));
 		for (Input input : inputs) {
-			if(this.getSenderPublicKey()) //TODO see how to compare this with the inputs
+			if(!utxoSet.contains(input))
 				return false;
 		}
 
 		//No inputs can be zero or negative
-		for (Input input : inputs) {//TODO SEE IF THIS IS REALLY CORRECT
-			if(outputs.get(input.getPrevOutputIndex()).getValue() <= 0)
+		Set<Entry<Input, Output>> newSet = new HashSet<Entry<Input, Output>>();
+		utxoSet = utxoMap.getUtxosForAddress(HashUtil.pubKeyToAddress(senderPublicKey));
+		for (Entry<Input, Output> entry : utxoSet) {
+			if(inputs.contains(entry.getKey()))
+				newSet.add(entry);
+		}
+		for (Entry<Input, Output> entry : newSet) {
+			Output output = entry.getValue();
+			if(output.getValue() <= 0)
 				return false;
 		}
 
-		//The list of inputs must not contain duplicates//TODO DO IT
-		Set<Integer> set1 = new HashSet<>();
-		for (Input input : inputs)
-		{
-			if (!set1.add(yourInt))
-			{
-				setToReturn.add(yourInt);
+		//The list of inputs must not contain duplicates
+		Set<Input> setToReturn = new HashSet<>(); 
+		Set<Input> set1 = new HashSet<>();
+		for (Input in : inputs) {
+			if (!set1.add(in)){
+				setToReturn.add(in);
 			}
 		}
-		
+		if(setToReturn.size() != inputs.size())
+			return false;
+
 		//The total input amount must be equal to (or less than, if we 
 		//allow fees) the total output amount
-		if(inputs.size() > outputs.size())//TODO LESS OR GREATER?
+		if(inputs.size() == outputs.size())
 			return false;
-		
-		//The signature must belong to the sender and be valid//TODO is it okay?
-		Signature sign = Signature.getInstance("SHA256WithRSA", "SunRsaSign");
-		sign.initVerify(senderPublicKey);	
-		if(!sign.verify(signature))
+
+		//The signature must belong to the sender and be valid
+		String insOutsHash = new String();
+		for (Input input : inputs) {	
+			insOutsHash += (input.getPrevTxId() + input.getPrevOutputIndex());
+		}
+		for (Output output : outputs) {
+			insOutsHash += (output.getAddress() + output.getValue());
+		}
+		if(!SignatureUtil.verifyWithDSA(senderPublicKey, insOutsHash, signature))
 			return false;
-		
+
 		//The transaction hash must be correct
-		//TODO how do I do this
-		
+		//TODO Don't really know how to do it
+
 		return true;
 	}
 
@@ -124,7 +153,7 @@ public class Transaction {
 		for (Output output : outputs) {
 			TxId += (output.getAddress() + output.getValue());
 		}
-		return EncodingUtil.bytesToBinary(HashUtil.sha256(TxId));
+		return EncodingUtil.bytesToHex(HashUtil.sha256(TxId));
 	}
 
 	public void addInput(Input input) {

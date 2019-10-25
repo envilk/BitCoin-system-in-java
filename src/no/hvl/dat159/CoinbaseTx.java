@@ -1,9 +1,5 @@
 package no.hvl.dat159;
 
-import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
 import no.hvl.dat159.util.EncodingUtil;
 import no.hvl.dat159.util.HashUtil;
 
