@@ -120,7 +120,7 @@ public class Transaction {
 
 		//The total input amount must be equal to (or less than, if we 
 		//allow fees) the total output amount
-		if(inputs.size() == outputs.size())
+		if(inputs.size() > outputs.size())
 			return false;
 
 		//The signature must belong to the sender and be valid

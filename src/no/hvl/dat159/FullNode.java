@@ -1,5 +1,10 @@
 package no.hvl.dat159;
 
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.SignatureException;
+
 /**
  * Contains both the full Blockchain and the full UtxoMap.
  * Also contains the wallet for the mining rewards + fees.
@@ -31,7 +36,7 @@ public class FullNode {
 	/**
 	 * Does what it says.
 	 * 1. Create the coinbase transaction
-	 * 2. Add the two transactions to a new block and mine the block
+	 * 2. Add the coinbase transaction to a new block and mine the block
 	 * 3. Validate the block. If valid:
 	 *		4. Add the block to the blockchain
 	 *		5. Update the utxo set
@@ -44,7 +49,7 @@ public class FullNode {
 		newBlock.mine();
 		if(newBlock.isValidAsGenesisBlock() && ct.isValid(utxoMap)) {
 			blockchain.appendBlock(newBlock);
-			utxoMap.addOutput(null, ct.getOutput());
+			utxoMap.addOutput(new Input(ct.getTxId(), 0), ct.getOutput());
 		}
 		else
 			System.out.println("Genesis block is not valid");
@@ -60,16 +65,28 @@ public class FullNode {
 	 *		6. Update the utxo set with the new tx
 	 * else
 	 *		up to you
+	 * @throws SignatureException 
+	 * @throws NoSuchProviderException 
+	 * @throws NoSuchAlgorithmException 
+	 * @throws InvalidKeyException 
 	 */
-	public void mineAndAppendBlockContaining(Transaction tx) {
+	public void mineAndAppendBlockContaining(Transaction tx) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchProviderException, SignatureException {
 	
 		CoinbaseTx ct = new CoinbaseTx(blockchain.getHeight(), "Money for myself", wallet.getAddress());
 		Block newBlock = new Block(blockchain.getLastBlockHash(), ct, tx);
 		newBlock.mine();
 		if(newBlock.isValid() && tx.isValid(utxoMap) && ct.isValid(utxoMap)) {
 			blockchain.appendBlock(newBlock);
-			utxoMap.addOutput(null, ct.getOutput());
-			utxoMap.addOutput(tx.getInputs(), tx.getOutputs());
+			for (Input input : tx.getInputs()) {//For each input inside tx transaction, that input row in the utxoMap should be removed
+				utxoMap.removeOutput(input);
+			}
+			utxoMap.addOutput(new Input(ct.getTxId(), 0), ct.getOutput());
+			//Here I have to create the new INPUTS in the utxoMap from the outputs of the transaction tx
+			int outputIndex = 0;
+			for (Output output : tx.getOutputs()) {
+				utxoMap.addOutput(new Input(tx.getTxId(), outputIndex), output);
+				outputIndex++;
+			}
 		}
 	}
 

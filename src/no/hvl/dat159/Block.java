@@ -56,7 +56,7 @@ public class Block {
 	 * ALL contents must be valid, and the hash of the block must satisfy
 	 * the hash puzzle requirement.
 	 */
-	public boolean isValid() {//TODO hash comparation?
+	public boolean isValid() {
 		return getBlockHashAsBinaryString().matches(Blockchain.MINING_TARGET) // The block must be mined
 				&& this.coinbaseTx != null // The data in the block must be valid
 				&& this.transaction != null;

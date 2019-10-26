@@ -48,20 +48,16 @@ public class Wallet {
 		UtxoMap utxoObject = networkNode.getUtxoMap();
 		Set<Entry<Input, Output>> utxoSet = utxoObject.getUtxosForAddress(getAddress());
 		long change = balance - value;
-		Transaction emptyTrans = new Transaction(getPublicKey());
+		Transaction tx = new Transaction(getPublicKey());
 		for (Entry<Input, Output> entry : utxoSet) {
-				emptyTrans.addInput(entry.getKey());
+			Input input = entry.getKey();
+			tx.addInput(input);
 		}
-		long counter = 0;
-		for (Entry<Input, Output> entry : utxoSet) {
-			Output output = entry.getValue();
-			if(counter + output.getValue() <= change) {
-				emptyTrans.addOutput(output);
-				counter += output.getValue();
-			}
-		}
-		emptyTrans.signTxUsing(keyPair.getPrivate());
-		return emptyTrans;
+		if(change != 0)//If there is change
+			tx.addOutput(new Output(change, getAddress()));//For sender
+		tx.addOutput(new Output(value, address));//For receiver
+		tx.signTxUsing(keyPair.getPrivate());
+		return tx;
 	}
 
 	public String getId() {
