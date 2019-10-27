@@ -55,7 +55,7 @@ public class Blockchain {
 	}
 
 	public int getHeight() {
-		return blocks.size()-1;
+		return blocks.size();
 	}
 	
 	public String getLastBlockHash() {
@@ -67,9 +67,12 @@ public class Blockchain {
 	}
 	
 	public void printOverview() {
-		System.out.println("      Mining difficulty: " + MINING_DIFFICULTY);
-		System.out.println("      Block reward     : " + BLOCK_REWARD);
-		System.out.println("      Number of blocks : " + getHeight());
-		System.out.println("      Last blockhash   : " + getLastBlockHash());
+		System.out.println();
+		System.out.println("Blockchain overview");
+		System.out.println("----------------------");
+		System.out.println("   Mining difficulty: " + MINING_DIFFICULTY);
+		System.out.println("   Block reward     : " + BLOCK_REWARD);
+		System.out.println("   Number of blocks : " + getHeight());
+		System.out.println("   Last blockhash   : " + getLastBlockHash());
 	}
 }

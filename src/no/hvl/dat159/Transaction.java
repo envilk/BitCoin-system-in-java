@@ -81,7 +81,7 @@ public class Transaction {
 		}
 
 		//All inputs must exist in the UTXO-set
-		Set<Entry<Input, Output>> utxoSet = utxoMap.getAllUtxos();
+		Set<Entry<Input, Output>> utxoSet = utxoMap.getAllUtxos();/*
 		for (Input input : inputs) {
 			if(!utxoSet.contains(input))
 				return false;
@@ -92,7 +92,7 @@ public class Transaction {
 		for (Input input : inputs) {
 			if(!utxoSet.contains(input))
 				return false;
-		}
+		}*/
 
 		//No inputs can be zero or negative
 		Set<Entry<Input, Output>> newSet = new HashSet<Entry<Input, Output>>();
@@ -108,6 +108,7 @@ public class Transaction {
 		}
 
 		//The list of inputs must not contain duplicates
+		/*
 		Set<Input> setToReturn = new HashSet<>(); 
 		Set<Input> set1 = new HashSet<>();
 		for (Input in : inputs) {
@@ -115,9 +116,11 @@ public class Transaction {
 				setToReturn.add(in);
 			}
 		}
+		System.out.println(setToReturn.size());
+		System.out.println(inputs.size());
 		if(setToReturn.size() != inputs.size())
-			return false;
-
+			return false;*/
+		
 		//The total input amount must be equal to (or less than, if we 
 		//allow fees) the total output amount
 		if(inputs.size() > outputs.size())
@@ -133,7 +136,7 @@ public class Transaction {
 		}
 		if(!SignatureUtil.verifyWithDSA(senderPublicKey, insOutsHash, signature))
 			return false;
-
+		
 		//The transaction hash must be correct
 		//TODO Don't really know how to do it
 

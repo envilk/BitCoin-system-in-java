@@ -60,7 +60,7 @@ public class CoinbaseTx {
 	 */
 	public String getTxId() {
 		String TxId = blockHeight + message + output;
-		return EncodingUtil.bytesToBinary(HashUtil.sha256(TxId));
+		return EncodingUtil.bytesToHex(HashUtil.sha256(TxId));
 	}
 
 	@Override

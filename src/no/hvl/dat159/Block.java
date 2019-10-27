@@ -33,7 +33,10 @@ public class Block {
 	 */
 	public Block(String prevBlockHash, CoinbaseTx coinbaseTx, Transaction tx) {
 		//Remember to calculate the Merkle root
-		this.merkleRoot = EncodingUtil.bytesToBinary(HashUtil.sha256(coinbaseTx.getTxId() + tx.getTxId()));
+		if(tx == null)
+			this.merkleRoot = EncodingUtil.bytesToHex(HashUtil.sha256(coinbaseTx.getTxId()));
+		else
+			this.merkleRoot = EncodingUtil.bytesToHex(HashUtil.sha256(coinbaseTx.getTxId() + tx.getTxId()));
 		this.coinbaseTx = coinbaseTx;
 		this.transaction = tx;
 		this.nonce = 0;
@@ -86,8 +89,14 @@ public class Block {
 	 * Calculates and encodes the block hash as a hexadecimal String.
 	 */
 	public String getBlockHashAsHexString() {
+		if(this.transaction == null) {
+			return EncodingUtil.bytesToHex(HashUtil.sha256(this.merkleRoot + this.nonce
+					+ this.coinbaseTx.getTxId()));
+		}
+		else {
 		return EncodingUtil.bytesToHex(HashUtil.sha256(this.merkleRoot + this.nonce + this.prevBlockHash 
 				+ this.coinbaseTx.getTxId() + this.transaction.getTxId()));
+		}
 	}
 	
 	public void printOverview() {

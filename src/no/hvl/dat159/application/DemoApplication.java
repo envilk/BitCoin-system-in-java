@@ -1,8 +1,12 @@
 package no.hvl.dat159.application;
 
+import java.util.List;
+
+import no.hvl.dat159.Block;
 import no.hvl.dat159.Blockchain;
 import no.hvl.dat159.FullNode;
 import no.hvl.dat159.Transaction;
+import no.hvl.dat159.UtxoMap;
 import no.hvl.dat159.Wallet;
 
 public class DemoApplication {
@@ -40,21 +44,25 @@ public class DemoApplication {
 		 * 		transaction, validate the transaction, mine a new block and 
 		 * 		append it to the blockchain.
 		 */
-		Transaction tx1 = fullnode.getWallet().createTransaction(3, wall1.getAddress());
+		Transaction tx1 = fullnode.getWallet().createTransaction(5, wall1.getAddress());
 		fullnode.mineAndAppendBlockContaining(tx1);
-
+		fullnode.getWallet().printOverview();
+		wall1.printOverview();
+		wall2.printOverview();
 		/*
 		 * 4. Repeat the above (transfer some money from one wallet address
 		 * 		to another and record this in the blockchain ledger). 
 		 */
 		Transaction tx2 = wall1.createTransaction(3, wall2.getAddress());
 		fullnode.mineAndAppendBlockContaining(tx2);
-
+		/*fullnode.getWallet().printOverview();
+		wall1.printOverview();
+		wall2.printOverview();*/
 		/*
 		 * 5. Repeat the above (transfer some money from one wallet address
 		 * 		to another and record this in the blockchain ledger). 
 		 */
-		Transaction tx3 = wall2.createTransaction(3, wall2.getAddress());
+		Transaction tx3 = wall2.createTransaction(2, wall1.getAddress());
 		fullnode.mineAndAppendBlockContaining(tx3);
 
 		/*
@@ -69,6 +77,10 @@ public class DemoApplication {
 		wall2.printOverview();
 		blockchain = fullnode.getBlockchain();
 		blockchain.printOverview();
+		List<Block> list = blockchain.getBlocks();
+		for (Block block : list) {
+			block.printOverview();
+		}
 	}
 
 }

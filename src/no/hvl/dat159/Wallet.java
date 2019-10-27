@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import no.hvl.dat159.util.HashUtil;
+import no.hvl.dat159.util.SignatureUtil;
 
 /**
  * A Wallet keeps the keys and creates signed transactions to be
@@ -28,6 +29,7 @@ public class Wallet {
 	public Wallet(String id, FullNode node) {
 		this.id = id;
 		this.networkNode = node;
+		keyPair = SignatureUtil.generateRandomDSAKeyPair();
 
 	}
 
@@ -57,6 +59,7 @@ public class Wallet {
 			tx.addOutput(new Output(change, getAddress()));//For sender
 		tx.addOutput(new Output(value, address));//For receiver
 		tx.signTxUsing(keyPair.getPrivate());
+		System.out.println(tx.toString());
 		return tx;
 	}
 
@@ -96,7 +99,7 @@ public class Wallet {
 	 * 
 	 */
 	public int getNumberOfUtxos() {
-		return networkNode.getUtxoMap().getAllUtxos().size();
+		return networkNode.getUtxoMap().getUtxosForAddress(getAddress()).size();
 	}
 
 	public void printOverview() {
