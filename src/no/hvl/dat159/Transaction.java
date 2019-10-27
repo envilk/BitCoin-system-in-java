@@ -9,6 +9,7 @@ import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
@@ -64,7 +65,6 @@ public class Transaction {
 	 * @throws SignatureException 
 	 * 
 	 */
-	@SuppressWarnings("unlikely-arg-type")
 	public boolean isValid(UtxoMap utxoMap) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchProviderException, SignatureException {
 		//None of the data must be null 
 		if(inputs == null || outputs == null || signature == null || senderPublicKey == null)
@@ -81,20 +81,21 @@ public class Transaction {
 		}
 
 		//All inputs must exist in the UTXO-set
-		Set<Entry<Input, Output>> utxoSet = utxoMap.getAllUtxos();/*
+		Map<Input, Output> map = utxoMap.getAllUtxosAsMap();
 		for (Input input : inputs) {
-			if(!utxoSet.contains(input))
+			if(!map.containsKey(input))
 				return false;
 		}
 
 		//All inputs must belong to the sender of this transaction
-		utxoSet = utxoMap.getUtxosForAddress(HashUtil.pubKeyToAddress(senderPublicKey));
+		map = utxoMap.getUtxosForAddressAsMap(HashUtil.pubKeyToAddress(senderPublicKey));
 		for (Input input : inputs) {
-			if(!utxoSet.contains(input))
+			if(!map.containsKey(input))
 				return false;
-		}*/
+		}
 
 		//No inputs can be zero or negative
+		Set<Entry<Input, Output>> utxoSet = utxoMap.getAllUtxos();
 		Set<Entry<Input, Output>> newSet = new HashSet<Entry<Input, Output>>();
 		utxoSet = utxoMap.getUtxosForAddress(HashUtil.pubKeyToAddress(senderPublicKey));
 		for (Entry<Input, Output> entry : utxoSet) {
@@ -108,18 +109,12 @@ public class Transaction {
 		}
 
 		//The list of inputs must not contain duplicates
-		/*
-		Set<Input> setToReturn = new HashSet<>(); 
-		Set<Input> set1 = new HashSet<>();
-		for (Input in : inputs) {
-			if (!set1.add(in)){
-				setToReturn.add(in);
-			}
-		}
-		System.out.println(setToReturn.size());
-		System.out.println(inputs.size());
-		if(setToReturn.size() != inputs.size())
-			return false;*/
+		List<Input> arrayList = new ArrayList<Input>(inputs);
+		Set<Input> uniqueElements = new HashSet<Input>(arrayList);
+		arrayList.clear();
+		arrayList.addAll(uniqueElements);
+		if(arrayList.size() != inputs.size())
+			return false;
 		
 		//The total input amount must be equal to (or less than, if we 
 		//allow fees) the total output amount

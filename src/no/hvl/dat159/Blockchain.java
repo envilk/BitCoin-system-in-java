@@ -12,7 +12,7 @@ public class Blockchain {
 	 * This blockchain's constant block reward (the miner's reward for mining
 	 * a block).
 	 */
-	public static final long BLOCK_REWARD = 1_000;
+	public static final long BLOCK_REWARD = 1_0;
 	
 	/**
 	 * The minimum number of leading zeros in the binary encoding of a block
@@ -20,7 +20,7 @@ public class Blockchain {
 	 * is multiplied by 2 for each additional leading zero that is required.
 	 * Recommended value: 15-25 
 	 */
-	public static final int MINING_DIFFICULTY = 10; 	
+	public static final int MINING_DIFFICULTY = 15; 	
 
 	/**
 	 * A regular expression for the mining target:
@@ -67,12 +67,9 @@ public class Blockchain {
 	}
 	
 	public void printOverview() {
-		System.out.println();
-		System.out.println("Blockchain overview");
-		System.out.println("----------------------");
-		System.out.println("   Mining difficulty: " + MINING_DIFFICULTY);
-		System.out.println("   Block reward     : " + BLOCK_REWARD);
-		System.out.println("   Number of blocks : " + getHeight());
-		System.out.println("   Last blockhash   : " + getLastBlockHash());
+		System.out.println("      Mining difficulty: " + MINING_DIFFICULTY);
+		System.out.println("      Block reward     : " + BLOCK_REWARD);
+		System.out.println("      Number of blocks : " + getHeight());
+		System.out.println("      Last blockhash   : " + getLastBlockHash());
 	}
 }

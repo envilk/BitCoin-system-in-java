@@ -5,6 +5,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SignatureException;
 
+import no.hvl.dat159.util.DateTimeUtil;
+
 /**
  * Contains both the full Blockchain and the full UtxoMap.
  * Also contains the wallet for the mining rewards + fees.
@@ -44,8 +46,8 @@ public class FullNode {
 	 *		up to you
 	 */
 	public void mineAndAddGenesisBlock() {
-		CoinbaseTx ct = new CoinbaseTx(blockchain.getHeight(), "Money for myself", wallet.getAddress());
-		Block newBlock = new Block(null, ct, null);
+		CoinbaseTx ct = new CoinbaseTx(blockchain.getHeight(), "Mined "+DateTimeUtil.getTimestamp()+" by "+wallet.getId(), wallet.getAddress());
+		Block newBlock = new Block("0", ct, null);
 		newBlock.mine();
 		if(newBlock.isValidAsGenesisBlock() && ct.isValid(utxoMap)) {
 			blockchain.appendBlock(newBlock);
@@ -72,7 +74,7 @@ public class FullNode {
 	 */
 	public void mineAndAppendBlockContaining(Transaction tx) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchProviderException, SignatureException {
 	
-		CoinbaseTx ct = new CoinbaseTx(blockchain.getHeight(), "Money for myself", wallet.getAddress());
+		CoinbaseTx ct = new CoinbaseTx(blockchain.getHeight(), "Mined "+DateTimeUtil.getTimestamp()+" by "+wallet.getId(), wallet.getAddress());
 		Block newBlock = new Block(blockchain.getLastBlockHash(), ct, tx);
 		newBlock.mine();
 		if(newBlock.isValid() && tx.isValid(utxoMap) && ct.isValid(utxoMap)) {

@@ -59,7 +59,6 @@ public class Wallet {
 			tx.addOutput(new Output(change, getAddress()));//For sender
 		tx.addOutput(new Output(value, address));//For receiver
 		tx.signTxUsing(keyPair.getPrivate());
-		System.out.println(tx.toString());
 		return tx;
 	}
 

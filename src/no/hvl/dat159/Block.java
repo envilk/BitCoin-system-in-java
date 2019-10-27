@@ -82,7 +82,14 @@ public class Block {
 	 * Can be useful in the mining process to see if the hash puzzle is solved.
 	 */
 	public String getBlockHashAsBinaryString() {
-		return EncodingUtil.bytesToBinary(HashUtil.sha256(getBlockHashAsHexString()));
+		if(this.transaction == null) {
+			return EncodingUtil.bytesToBinary(HashUtil.sha256(this.merkleRoot + this.nonce
+					+ this.coinbaseTx.getTxId()));
+		}
+		else {
+		return EncodingUtil.bytesToBinary(HashUtil.sha256(this.merkleRoot + this.nonce + this.prevBlockHash 
+				+ this.coinbaseTx.getTxId() + this.transaction.getTxId()));
+		}
 	}
 
 	/**

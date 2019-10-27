@@ -28,7 +28,14 @@ public class UtxoMap {
 	public Set<Entry<Input, Output>> getAllUtxos() {
 		return utxos.entrySet();
 	}
-
+	
+	/**
+	 * Collects all UTXOs and returns these as a map of K,V-pairs. (Necessary for checking if a transaction is valid)
+	 */
+	public Map<Input, Output> getAllUtxosAsMap() {
+		return utxos;
+	}
+	
 	/**
 	 * Collects UTXOs matching to a specific address and returns these
 	 * as a Set of K,V-pairs.
@@ -40,6 +47,19 @@ public class UtxoMap {
 				setAddress.add(entry);
 		}
 		return setAddress;
+	}
+	
+	/**
+	 * Collects UTXOs matching to a specific address and returns these
+	 * as a map of K,V-pairs. (Necessary for checking if a transaction is valid)
+	 */
+	public Map<Input, Output> getUtxosForAddressAsMap(String address) {
+		Map<Input, Output> mapAddress = new HashMap<Input, Output>();
+		for (Map.Entry<Input, Output> entry : utxos.entrySet()) {
+			if(entry.getValue().getAddress().equals(address))
+				mapAddress.put(entry.getKey(), entry.getValue());
+		}
+		return mapAddress;
 	}
 
 	public void addOutput(Input input, Output output) {
